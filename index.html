@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Happy Birthday Ibu</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>
+            /* Reset and Dark Background */
+            body, html {
+                margin: 0; padding: 0;
+                width: 100%; height: 100%;
+                background-color: #000;
+                font-family: 'Segoe UI', Tahoma, sans-serif;
+                overflow: hidden;
+                display: flex; justify-content: center; align-items: center;
+            }
+
+            /* Page 1: Black screen with button */
+            #page1 { text-align: center; z-index: 10; }
+            .start-btn {
+                padding: 18px 35px;
+                font-size: 22px;
+                background: none;
+                color: #ff69b4;
+                border: 2px solid #ff69b4;
+                border-radius: 30px;
+                cursor: pointer;
+                transition: 0.4s;
+                letter-spacing: 2px;
+            }
+            .start-btn:hover {
+                background-color: #ff69b4;
+                color: white;
+                box-shadow: 0 0 30px #ff69b4;
+            }
+
+            /* Page 2: Celebration Layout */
+            #page2 {
+                display: none; 
+                text-align: center;
+                color: white;
+                z-index: 5;
+                width: 95%; /* Use more width on mobile */
+                max-width: 600px;
+            }
+
+            h1 { font-size: 2rem; color: #ffd700; margin-bottom: 10px; }
+            .speech { 
+                font-size: 1rem; 
+                margin-bottom: 20px; 
+                line-height: 1.5; 
+                padding: 0 10px;
+            }
+
+            /* Adjusted for Portrait Video & Mobile Stacking */
+            .main-content {
+                display: flex;
+                flex-direction: row; /* Default side-by-side for desktop */
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .icon { font-size: 50px; filter: drop-shadow(0 0 10px gold); }
+
+            /* PORTRAIT VIDEO SETTINGS */
+            video {
+                width: 100%;
+                max-width: 280px; /* Fits standard mobile width perfectly */
+                height: auto;
+                aspect-ratio: 9 / 16; /* Forces portrait ratio */
+                border: 3px solid #fff;
+                border-radius: 12px;
+                box-shadow: 0 0 20px rgba(255, 105, 180, 0.6);
+                background-color: #111;
+            }
+
+            /* Mobile Specific Adjustments */
+            @media (max-width: 600px) {
+                h1 { font-size: 1.8rem; }
+                .main-content {
+                    flex-direction: column; /* Stack icons and video vertically on small screens */
+                }
+                .icon { font-size: 40px; }
+                video { max-width: 220px; } /* Slightly smaller for very small phones */
+            }
+
+            /* Animations */
+            .fade-in { animation: fadeInEffect 2.5s; }
+            @keyframes fadeInEffect {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+        </style>
+    </head>
+    <body>
+
+        <div id="page1">
+            <button class="start-btn" onclick="start()">Untuk Ibu</button>
+        </div>
+
+        <div id="page2" class="fade-in">
+            <h1>Happy Birthday Ibu &hearts;</h1>
+            <p class="speech">
+                Terima kasih sudah menjadi ibu yang luar biasa.<br>
+                Semoga ibu sentiasa sihat, bahagia, dan dimurahkan rezeki.<br>
+                Sayang ibu &lt;3
+            </p>
+
+            <div class="main-content">
+                <div class="icon">🎂</div>
+                
+                <video id="vlog" controls playsinline>
+                    <source src="video/myvideo.mp4" type="video/mp4">
+                    Your browser doesn't support video.
+                </video>
+
+                <div class="icon">🎁</div>
+            </div>
+        </div>
+
+        <canvas id="confetti"></canvas>
+
+        <script>
+            function start() {
+                document.getElementById('page1').style.display = 'none';
+                document.getElementById('page2').style.display = 'block';
+                
+                const vid = document.getElementById('vlog');
+                vid.play().catch(error => {
+                    console.log("Autoplay was prevented. User must click play manually.");
+                });
+
+                runConfetti();
+            }
+
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const colors = ['#FF69B4', '#FFB6C1', '#FFD700', '#DAA520', '#FFFACD'];
+
+            function runConfetti() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                for (let i = 0; i < 100; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height - canvas.height,
+                        r: Math.random() * 4 + 2,
+                        d: Math.random() * 10,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        tilt: Math.random() * 10 - 10
+                    });
+                }
+                update();
+            }
+
+            function update() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, i) => {
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                    p.y += Math.cos(p.d) + 1 + p.r / 2;
+                    p.tilt = Math.sin(p.d) * 15;
+                    if (p.y > canvas.height) {
+                        particles[i] = { ...p, y: -20, x: Math.random() * canvas.width };
+                    }
+                });
+                requestAnimationFrame(update);
+            }
+
+            // Fix confetti resize
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        </script>
+    </body>
+</html>
